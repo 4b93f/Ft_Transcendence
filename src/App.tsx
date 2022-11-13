@@ -1,12 +1,20 @@
 import React from 'react';
-import Testing from './components/test';
+import {Route, Routes} from "react-router-dom";
+import Leaderboard from "./pages/Leaderboard";
+import Home from "./pages/Home";
+import Settings from "./pages/Settings";
+import Game from "./pages/Game";
 
 function App() {
+
   return (
       <div>
-        <h1>Hi</h1>
-          <Testing str={'learn react'}/>
-          <Testing str={'oui tg'}/>
+        <Routes>
+            <Route path='/' element={<Home/>}/>
+            <Route path='/Leaderboard' element={<Leaderboard/>}/>
+            <Route path='/Settings' element={<Settings/>}/>
+            <Route path='/Game' element={<Game/>}/>
+        </Routes>
       </div>
   );
 }
