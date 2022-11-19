@@ -4,17 +4,18 @@ import Leaderboard from "./pages/Leaderboard";
 import Home from "./pages/Home";
 import Settings from "./pages/Settings";
 import Game from "./pages/Game";
+import NavMenu from "./components/NavMenu/NavMenu";
+import Navbar from "react-bootstrap/Navbar"
+import 'bootstrap/dist/css/bootstrap.min.css'
+import Nav from './components/NavBar'
+import Pathing from "./components/Path";
 
 function App() {
 
   return (
       <div>
-        <Routes>
-            <Route path='/' element={<Home/>}/>
-            <Route path='/Leaderboard' element={<Leaderboard/>}/>
-            <Route path='/Settings' element={<Settings/>}/>
-            <Route path='/Game' element={<Game/>}/>
-        </Routes>
+          <Nav/>
+          <Pathing/>
       </div>
   );
 }
