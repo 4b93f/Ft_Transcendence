@@ -4,17 +4,20 @@ import Navbar from 'react-bootstrap/Navbar';
 import {Route, Routes, Link, Router} from "react-router-dom";
 import Game from "../pages/Game";
 import React from "react";
+import { FaUserAlt } from 'react-icons/fa'
+import { GiPodium, GiGamepadCross, GiRadarSweep } from 'react-icons/gi'
 
 
 function ColorSchemesExample() {
   return (
       <Navbar bg="primary" variant="dark">
-        <Container>
+        <Container fluid>
           <Navbar.Brand as={Link} to ="/">Ping Pong :)</Navbar.Brand>
           <Nav>
-            <Nav.Link as={Link} to='/Game'>Game</Nav.Link>
-            <Nav.Link as={Link} to="/leaderboard">Leaderboard</Nav.Link>
-            <Nav.Link as={Link} to="/Settings">Settings</Nav.Link>
+              <Nav.Link as={Link} to='/Game'><GiGamepadCross/></Nav.Link>
+              <Nav.Link as={Link} to="Lobby"><GiRadarSweep/></Nav.Link>
+              <Nav.Link as={Link} to="/leaderboard"><GiPodium/></Nav.Link>
+              <Nav.Link as={Link} to="Profile"><FaUserAlt/></Nav.Link>
           </Nav>
         </Container>
       </Navbar>

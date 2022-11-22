@@ -2,8 +2,9 @@ import React from 'react';
 import {Route, Routes} from "react-router-dom";
 import Home from "../pages/Home";
 import Leaderboard from "../pages/Leaderboard";
-import Settings from "../pages/Settings";
+import Profile from "../pages/Profile";
 import Game from "../pages/Game";
+import Lobby from "../pages/Lobby";
 
 
 function Pathing(){
@@ -11,8 +12,9 @@ function Pathing(){
         <Routes>
             <Route path='/' element={<Home/>}/>
             <Route path='/Leaderboard' element={<Leaderboard/>}/>
-            <Route path='/Settings' element={<Settings/>}/>
+            <Route path='/Profile' element={<Profile/>}/>
             <Route path='/Game' element={<Game/>}/>
+            <Route path='/Lobby' element={<Lobby/>}/>
         </Routes>
     )
 }
