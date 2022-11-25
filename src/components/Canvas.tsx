@@ -7,8 +7,8 @@ const ball = {
     x : 0,
     y : 0,
     radius : 10,
-    velocityX : 5,
-    velocityY : 5,
+    velocityX : -5,
+    velocityY : 0,
     speed : 7,
     color : "#FFFFFF"
 }
@@ -29,8 +29,10 @@ const u2 = {
     x : 0,
     y : 0,
     width : 50,
-    speed : 10,
     height : 250,
+    speed : 20,
+    max: 0,
+    min: 0,
     score : 0,
     color : "#FFFFFF"
 }
@@ -81,8 +83,32 @@ function UpdateBall()
     if (ball.y + ball.radius > canvas.height || ball.y - ball.radius < 0){
         ball.velocityY = -ball.velocityY;
     }
+    let player:string = (ball.x < (canvas.width /2)) ? 'u1' : 'u2';
+    console.log(player);
+    if (player === 'u1' && collision(ball, u1))
+    {
+        console.log("collision !");
+        ball.velocityX = -ball.velocityX;
+    }
+    if (player === 'u2' && collision(ball, u2))
+    {
+        console.log("collision !");
+        ball.velocityX = -ball.velocityX;
+    }
 }
 
+function collision(b:any, p:any){
+    b.top = ball.y - ball.radius;
+    b.bottom = ball.y + ball.radius;
+    b.left = ball.x - b.radius;
+    b.right = ball.x + b.radius
+
+    p.top = p.y;
+    p.bottom = p.y + p.height;
+    p.left = p.x;
+    p.right = p.x + p.width;
+    return b.right > p.left && b.bottom > p.top && b.left < p.right && b.top < p.bottom;
+}
 
 const render = () => {
     ResetBall();
@@ -109,6 +135,7 @@ const Canvas = (props:CanvasProps) => {
                 u2.y = (canvas.height - u2.height) / 2 ;
                 u2.x = canvas.width - u2.width;
                 ball.y = canvas.height /2;
+                ball.x = canvas.width / 2;
                 u1.max = canvas.height;
                 setInterval(render, 10);
             }
