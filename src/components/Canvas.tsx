@@ -2,7 +2,6 @@ import React, {useEffect, useRef} from 'react';
 
 let canvas:any;
 let context:any;
-let inc = 100;
 
 const ball = {
     x : 0,
@@ -55,14 +54,22 @@ function ResetBall(){
     context.fillRect(0, 0, context.canvas.width, context.canvas.height);
 }
 
+function UpdateBall()
+{
+    ball.x += ball.velocityX;
+    ball.y += ball.velocityY;
+    if (ball.y + ball.radius > canvas.height || ball.y - ball.radius < 0){
+        ball.velocityY = -ball.velocityY;
+    }
+}
 
 
 const render = () => {
     ResetBall();
     DrawRec(u1.x, u1.y, u1.width, u1.height, "#FFFFFF");
     DrawRec(u2.x, u2.y, u2.width, u2.height, "#FFFFFF");
-    DrawBall(inc, 100, 20, "#000FFF");
-    inc+=1;
+    DrawBall(ball.x, ball.y, 20, "#000FFF");
+    UpdateBall();
 }
 
 const Canvas = (props:CanvasProps) => {
@@ -81,7 +88,8 @@ const Canvas = (props:CanvasProps) => {
                 u1.y = (canvas.height - u1.height) / 2 ;
                 u2.y = (canvas.height - u2.height) / 2 ;
                 u2.x = canvas.width - u2.width;
-                setInterval(render, 1);
+                ball.y = canvas.height /2;
+                setInterval(render, 10);
             }
         }
     })
