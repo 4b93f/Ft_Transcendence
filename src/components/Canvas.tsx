@@ -1,5 +1,4 @@
 import React, {useEffect, useRef} from 'react';
-import {isMainThread} from "worker_threads";
 
 let canvas:any;
 let context:any;
@@ -8,10 +7,10 @@ const ball = {
     x : 0,
     y : 0,
     radius : 10,
-    velocityX : -5,
+    velocityX : -3,
     velocityY : 0,
-    speed : 7,
-    color : "#FFFFFF"
+    speed : 3,
+    color : "#477cae"
 }
 
 const u1 = {
@@ -23,7 +22,7 @@ const u1 = {
     max : 0,
     min : 0,
     score : 0,
-    color : "#FFFFFF"
+    color : "#da0101"
 }
 
 const u2 = {
@@ -35,7 +34,7 @@ const u2 = {
     max: 0,
     min: 0,
     score : 0,
-    color : "#FFFFFF"
+    color : "#39c524"
 }
 
 type CanvasProps = {
@@ -43,19 +42,41 @@ type CanvasProps = {
     height: number;
 }
 
-function DrawRec(x: number, y: number, w: number, h: number, color:string){
+function ReplaceBall(i:number)
+{
+    ball.x = canvas.width / 2;
+    ball.y = canvas.height / 2;
+
+    ball.speed = 3;
+    ball.velocityY = -ball.velocityY;
+    ball.velocityX = -ball.speed;
+    if (i === 0)
+        ball.velocityX = ball.speed;
+}
+
+function DrawScore(x:number, y:number, color:string, text:string)
+{
+    context.fillStyle = '#ffffff';
+    context.font = '45px Arial';
+    context.fillText(text, x, y)
+}
+
+function DrawRec(x: number, y: number, w: number, h: number, color:string)
+{
     context.fillStyle = color;
     context.fillRect(x, y, w , h);
 }
 
-function PaddleUp(){
+function PaddleUp()
+{
     context.fillStyle = '#000000';
     context.fillRect(u1.x, u1.y, u1.width, u1.height);
     if (u1.y - u1.speed >= -10)
         u1.y -= u1.speed;
 }
 
-function PaddleDown(){
+function PaddleDown()
+{
     context.fillStyle = '#000000';
     context.fillRect(u1.x, u1.y, u1.width, u1.height)
     if (u1.y + u1.speed + u1.height <= u1.max + 10)
@@ -64,7 +85,8 @@ function PaddleDown(){
     console.log(u1.max);
 }
 
-function DrawBall(x: number, y: number, r: number, color:string){
+function DrawBall(x: number, y: number, r: number, color:string)
+{
     context.fillStyle = color;
     context.beginPath();
     context.arc(x, y, r, 0, Math.PI*2, false);
@@ -72,20 +94,30 @@ function DrawBall(x: number, y: number, r: number, color:string){
     context.fill();
 }
 
-function ResetBall(){
+function ResetBall()
+{
     context.fillStyle = '#000000';
     context.fillRect(0, 0, context.canvas.width, context.canvas.height);
 }
 
 function UpdateBall()
 {
+    if (ball.x - ball.radius < 0)
+    {
+        u2.score++;
+        ReplaceBall(1);
+    }
+    if (ball.x + ball.radius > canvas.width)
+    {
+        u1.score++;
+        ReplaceBall(0);
+    }
     ball.x += ball.velocityX;
     ball.y += ball.velocityY;
-    if (ball.y + ball.radius > canvas.height || ball.y - ball.radius < 0){
+    if (ball.y + ball.radius > canvas.height || ball.y - ball.radius < 0)
         ball.velocityY = -ball.velocityY;
-    }
     let player:string = (ball.x < (canvas.width / 2)) ? 'u1' : 'u2';
-    console.log(player);
+    console.log(ball);
     if (player === 'u1' && collision(ball, u1))
     {
         console.log("collision !");
@@ -114,7 +146,8 @@ function UpdateBall()
     }
 }
 
-function collision(b:any, p:any){
+function collision(b:any, p:any)
+{
     b.top = ball.y - ball.radius;
     b.bottom = ball.y + ball.radius;
     b.left = ball.x - b.radius;
@@ -129,9 +162,11 @@ function collision(b:any, p:any){
 
 const render = () => {
     ResetBall();
-    DrawRec(u1.x, u1.y, u1.width, u1.height, "#FFFFFF");
-    DrawRec(u2.x, u2.y, u2.width, u2.height, "#FFFFFF");
-    DrawBall(ball.x, ball.y, 20, "#000FFF");
+    DrawScore(canvas.width / 4, canvas.height / 4, '#FFFFFF', u1.score.toString());
+    DrawScore(3 * canvas.width / 4, canvas.height / 4, '#FFFFFF', u2.score.toString());
+    DrawRec(u1.x, u1.y, u1.width, u1.height, u1.color);
+    DrawRec(u2.x, u2.y, u2.width, u2.height, u2.color);
+    DrawBall(ball.x, ball.y, ball.radius, ball.color);
     UpdateBall();
 }
 
@@ -146,7 +181,7 @@ const Canvas = (props:CanvasProps) => {
             if (context)
             {
                 context.beginPath();
-                context.fillStyle = '#000000';
+                context.fillStyle = '#959319';
                 context.fillRect(0, 0, context.canvas.width, context.canvas.height);
                 u1.y = (canvas.height - u1.height) / 2 ;
                 u2.y = (canvas.height - u2.height) / 2 ;
