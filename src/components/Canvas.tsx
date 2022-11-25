@@ -1,4 +1,5 @@
 import React, {useEffect, useRef} from 'react';
+import {isMainThread} from "worker_threads";
 
 let canvas:any;
 let context:any;
@@ -83,17 +84,33 @@ function UpdateBall()
     if (ball.y + ball.radius > canvas.height || ball.y - ball.radius < 0){
         ball.velocityY = -ball.velocityY;
     }
-    let player:string = (ball.x < (canvas.width /2)) ? 'u1' : 'u2';
+    let player:string = (ball.x < (canvas.width / 2)) ? 'u1' : 'u2';
     console.log(player);
     if (player === 'u1' && collision(ball, u1))
     {
         console.log("collision !");
-        ball.velocityX = -ball.velocityX;
+        let colPoint:number = ball.y - (u1.y + (u1.height / 2));
+        colPoint = colPoint / (u1.height / 2);
+        let angleRad:number = colPoint * Math.PI / 4;
+        let direction:number = (ball.x < (canvas.width / 2)) ? 1 : -1;
+
+        ball.velocityX = direction * ball.speed * Math.cos(angleRad);
+        ball.velocityY = ball.speed * Math.sin(angleRad);
+
+        ball.speed += 0.5;
     }
     if (player === 'u2' && collision(ball, u2))
     {
         console.log("collision !");
-        ball.velocityX = -ball.velocityX;
+        let colPoint:number = ball.y - (u2.y + (u2.height / 2));
+        colPoint = colPoint / (u2.height / 2);
+        let angleRad:number = colPoint * Math.PI / 4;
+        let direction:number = (ball.x < (canvas.width / 2)) ? 1 : -1;
+
+        ball.speed += 0.5;
+
+        ball.velocityX = direction * ball.speed * Math.cos(angleRad);
+        ball.velocityY = ball.speed * Math.sin(angleRad);
     }
 }
 
