@@ -1,7 +1,36 @@
-import React, {useContext, useEffect, useRef} from 'react';
+import React, {useEffect, useRef} from 'react';
 
 let canvas:any;
 let context:any;
+let inc = 100;
+
+const ball = {
+    x : 0,
+    y : 0,
+    radius : 10,
+    velocityX : 5,
+    velocityY : 5,
+    speed : 7,
+    color : "#FFFFFF"
+}
+
+const u1 = {
+    x : 0,
+    y : 0,
+    width : 50,
+    height : 250,
+    score : 0,
+    color : "#FFFFFF"
+}
+
+const u2 = {
+    x : 0,
+    y : 0,
+    width : 50,
+    height : 250,
+    score : 0,
+    color : "#FFFFFF"
+}
 
 type CanvasProps = {
     width: number;
@@ -21,6 +50,21 @@ function DrawBall(x: number, y: number, r: number, color:string){
     context.fill();
 }
 
+function ResetBall(){
+    context.fillStyle = '#000000';
+    context.fillRect(0, 0, context.canvas.width, context.canvas.height);
+}
+
+
+
+const render = () => {
+    ResetBall();
+    DrawRec(u1.x, u1.y, u1.width, u1.height, "#FFFFFF");
+    DrawRec(u2.x, u2.y, u2.width, u2.height, "#FFFFFF");
+    DrawBall(inc, 100, 20, "#000FFF");
+    inc+=1;
+}
+
 const Canvas = (props:CanvasProps) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -34,6 +78,10 @@ const Canvas = (props:CanvasProps) => {
                 context.beginPath();
                 context.fillStyle = '#000000';
                 context.fillRect(0, 0, context.canvas.width, context.canvas.height);
+                u1.y = (canvas.height - u1.height) / 2 ;
+                u2.y = (canvas.height - u2.height) / 2 ;
+                u2.x = canvas.width - u2.width;
+                setInterval(render, 1);
             }
         }
     })
