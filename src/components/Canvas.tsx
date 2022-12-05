@@ -3,6 +3,59 @@ import React, {useEffect, useRef} from 'react';
 let canvas:any;
 let context:any;
 
+export class Gaming{
+
+    Balling:any = ball;
+    Player1:any = u1;
+    Player2:any = u2;
+
+    constructor(width: number, height: number)
+    {
+        console.log("start");
+    }
+    rendering()
+    {
+        render();
+    }
+    Canvas = (props:CanvasProps) => {
+        const canvasRef = useRef<HTMLCanvasElement>(null);
+
+        useEffect(() => {
+            if (canvasRef.current)
+            {
+                canvas = canvasRef.current;
+                context = canvas.getContext('2d');
+                if (context)
+                {
+                    context.beginPath();
+                    context.fillStyle = '#959319';
+                    context.fillRect(0, 0, context.canvas.width, context.canvas.height);
+                    u1.y = (canvas.height - u1.height) / 2 ;
+                    u2.y = (canvas.height - u2.height) / 2 ;
+                    u2.x = canvas.width - u2.width;
+                    ball.y = canvas.height /2;
+                    ball.x = canvas.width / 2;
+                    u1.max = canvas.height;
+                }
+                setInterval(render, 1);
+                canvas.tabIndex = 1;
+                canvas.addEventListener('keydown', function(e:any) {
+                    if (e.keyCode === 38){
+                        console.log("UP");
+                        PaddleUp();
+                    }
+                    if (e.keyCode === 40){
+                        console.log("DOWN");
+                        PaddleDown();
+                    }
+
+                });
+            }
+        })
+        return <canvas ref={canvasRef} height={props.height} width={props.width}/>;
+    }
+}
+
 const ball = {
     x : 0,
     y : 0,
@@ -81,8 +134,8 @@ function PaddleDown()
     context.fillRect(u1.x, u1.y, u1.width, u1.height)
     if (u1.y + u1.speed + u1.height <= u1.max + 10)
         u1.y += u1.speed;
-    console.log(u1.y);
-    console.log(u1.max);
+    //console.log(u1.y);
+    //console.log(u1.max);
 }
 
 function DrawBall(x: number, y: number, r: number, color:string)
@@ -114,13 +167,13 @@ function UpdateBall()
     }
     ball.x += ball.velocityX;
     ball.y += ball.velocityY;
+    //console.log(ball);
     if (ball.y + ball.radius > canvas.height || ball.y - ball.radius < 0)
         ball.velocityY = -ball.velocityY;
     let player:string = (ball.x < (canvas.width / 2)) ? 'u1' : 'u2';
-    console.log(ball);
     if (player === 'u1' && collision(ball, u1))
     {
-        console.log("collision !");
+        //console.log("collision !");
         let colPoint:number = ball.y - (u1.y + (u1.height / 2));
         colPoint = colPoint / (u1.height / 2);
         let angleRad:number = colPoint * Math.PI / 4;
@@ -128,18 +181,17 @@ function UpdateBall()
 
         ball.velocityX = direction * ball.speed * Math.cos(angleRad);
         ball.velocityY = ball.speed * Math.sin(angleRad);
-
-        ball.speed += 0.5;
+        if (ball.speed < 40)
+            ball.speed += 0.1;
     }
     if (player === 'u2' && collision(ball, u2))
     {
-        console.log("collision !");
         let colPoint:number = ball.y - (u2.y + (u2.height / 2));
         colPoint = colPoint / (u2.height / 2);
         let angleRad:number = colPoint * Math.PI / 4;
         let direction:number = (ball.x < (canvas.width / 2)) ? 1 : -1;
-
-        ball.speed += 0.5;
+        if (ball.speed < 40)
+            ball.speed += 0.1;
 
         ball.velocityX = direction * ball.speed * Math.cos(angleRad);
         ball.velocityY = ball.speed * Math.sin(angleRad);
@@ -169,43 +221,3 @@ const render = () => {
     DrawBall(ball.x, ball.y, ball.radius, ball.color);
     UpdateBall();
 }
-
-const Canvas = (props:CanvasProps) => {
-    const canvasRef = useRef<HTMLCanvasElement>(null);
-
-    useEffect(() => {
-        if (canvasRef.current)
-        {
-            canvas = canvasRef.current;
-            context = canvas.getContext('2d');
-            if (context)
-            {
-                context.beginPath();
-                context.fillStyle = '#959319';
-                context.fillRect(0, 0, context.canvas.width, context.canvas.height);
-                u1.y = (canvas.height - u1.height) / 2 ;
-                u2.y = (canvas.height - u2.height) / 2 ;
-                u2.x = canvas.width - u2.width;
-                ball.y = canvas.height /2;
-                ball.x = canvas.width / 2;
-                u1.max = canvas.height;
-                setInterval(render, 10);
-            }
-            canvas.tabIndex = 1;
-            canvas.addEventListener('keydown', function(e:any) {
-                if (e.keyCode === 38){
-                    console.log("UP");
-                    PaddleUp();
-                }
-                if (e.keyCode === 40){
-                    console.log("DOWN");
-                    PaddleDown();
-                }
-
-            });
-        }
-    })
-    return <canvas ref={canvasRef} height={props.height} width={props.width}/>;
-}
-
-export default Canvas;
