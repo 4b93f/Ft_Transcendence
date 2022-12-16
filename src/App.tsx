@@ -1,22 +1,14 @@
 import React, {useState, useEffect, useCallback} from "react";
-import {Gaming} from "./components/Canvas";
-import axios from "axios";
+import {gameInfo, Gaming} from "./components/Canvas";
+import io from "socket.io-client";
+import {wait} from "@testing-library/user-event/dist/utils";
 
 
 function App() {
-    let g = new Gaming(1000, 600);
-    const [data, setData] = useState([]);
-    const test = useCallback(async () => {
-        const response = await axios.get("http://localhost:5000");
-        console.log(response.data);
-        setData(response.data);
-    }, []);
-    useEffect(() => {
-        test();
-    }, []);
-    return (
-        <div/>
-    );
+    let done;
+    let test:gameInfo;
+    let game = new Gaming(1000,1000);
+    return game.Canvas();
 }
 
 export default App;

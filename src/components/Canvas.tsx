@@ -1,25 +1,114 @@
 import React, {useEffect, useRef} from 'react';
+import io from "socket.io-client";
 
 let canvas:any;
 let context:any;
 
-export class Gaming{
+class Player
+{
+    x:number;
+    y:number;
+    width:number;
+    height:number;
+    color:string;
+    score:number;
+    min:number;
+    max:number;
+    speed:number;
+    constructor(x:number, y:number, width:number, height:number, color:string, score:number, min:number, max:number, speed:number) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.color = color;
+        this.score = score;
+        this.min = min;
+        this.max = max;
+        this.speed = speed;
+    }
+    PaddleUp()
+    {
+        context.fillStyle = '#000000';
+        context.fillRect(this.x, this.y, this.width, this.height);
+        if (this.y - this.speed >= -10)
+            this.y -= this.speed;
+    }
+    PaddleDown()
+    {
+        context.fillStyle = '#000000';
+        context.fillRect(this.x, this.y, this.width,this.height)
+        if (this.y + this.speed + this.height <= this.max + 10)
+            this.y += this.speed;
+    }
+}
 
-    Balling:any = ball;
-    Player1:any = u1;
-    Player2:any = u2;
+class Ball
+{
+    x:number;
+    y:number;
+    radius:number;
+    speed:number;
+    velocityX:number;
+    velocityY:number;
+    color:string;
+    constructor(x:number, y:number, radius:number, speed:number, velocityX:number, velocityY:number, color:string) {
+        this.x = x;
+        this.y = y;
+        this.radius = radius;
+        this.speed = speed;
+        this.velocityX = velocityX;
+        this.velocityY = velocityY;
+        this.color = color;
+    }
+}
+
+export class gameInfo{
+    Balling:Ball;
+    Player1:Player;
+    Player2:Player;
+    CDimension:any = {width: 0, height: 0};
+    constructor(widths:number, heights:number){
+        this.Balling = new Ball(widths, heights, 10, 10, 10, 10, 'red');
+        this.Player1 = new Player(0, 0, 10, 10, 'white', 0, 0, 0, 3);
+        this.Player2 = new Player(widths, heights, 10, 10, 'white', 0, 0, 0, 3);
+        this.CDimension = {width: widths, height: heights};
+    }
+    copy(other:gameInfo)
+    {
+        this.Balling = other.Balling;
+        this.Player1 = other.Player1;
+        this.Player2 = other.Player2;
+        this.CDimension = {width: other.CDimension.width, height: other.CDimension.height};
+    }
+
+}
+
+export class Gaming{
+    Info:gameInfo;
+    socket = io("http://localhost:5001");
 
     constructor(width: number, height: number)
     {
-        console.log("start");
+        this.Info = new gameInfo(width, height);
     }
-    rendering()
-    {
-        render();
+    Draw = () => {
+        this.socket.emit('events', {name: 'TEST'}, (data:gameInfo) => {
+            this.Info.copy(data);
+        });
+        console.log('FACK');
+        ResetBall();
+        DrawScore(canvas.width / 4, canvas.height / 4, '#FFFFFF', this.Info.Player1.score.toString());
+        DrawScore(3 * canvas.width / 4, canvas.height / 4, '#FFFFFF',this.Info.Player1.score.toString());
+        DrawRec(this.Info.Player1.x, this.Info.Player1.y, this.Info.Player1.width, this.Info.Player1.height, this.Info.Player1.color);
+        DrawRec(this.Info.Player2.x, this.Info.Player2.y, this.Info.Player2.width, this.Info.Player2.height, this.Info.Player2.color);
+        DrawBall(this.Info.Balling.x, this.Info.Balling.y, this.Info.Balling.radius, this.Info.Balling.color);
     }
-    Canvas = (props:CanvasProps) => {
+    Canvas = () => {
+        this.socket.emit('events', (data:gameInfo) => {
+            //console.log('test');
+            this.Info.copy(data);
+        });
         const canvasRef = useRef<HTMLCanvasElement>(null);
-
         useEffect(() => {
             if (canvasRef.current)
             {
@@ -28,83 +117,32 @@ export class Gaming{
                 if (context)
                 {
                     context.beginPath();
-                    context.fillStyle = '#959319';
+                    context.fillStyle = '#163eab';
                     context.fillRect(0, 0, context.canvas.width, context.canvas.height);
-                    u1.y = (canvas.height - u1.height) / 2 ;
-                    u2.y = (canvas.height - u2.height) / 2 ;
-                    u2.x = canvas.width - u2.width;
-                    ball.y = canvas.height /2;
-                    ball.x = canvas.width / 2;
-                    u1.max = canvas.height;
+                    //this.Info.Player2.x = props.Player1.x;
+                    //this.Info.Balling.x = props.Balling.x;
+                    //this.Info.Player1.max = props.Player1.max;
                 }
-                setInterval(render, 1);
+                setInterval(this.Draw, 1);
                 canvas.tabIndex = 1;
-                canvas.addEventListener('keydown', function(e:any) {
+                canvas.addEventListener('keypress', function(e:any) {
                     if (e.keyCode === 38){
                         console.log("UP");
-                        PaddleUp();
                     }
                     if (e.keyCode === 40){
                         console.log("DOWN");
-                        PaddleDown();
                     }
-
                 });
             }
-        })
-        return <canvas ref={canvasRef} height={props.height} width={props.width}/>;
+        });
+        return <canvas ref={canvasRef} height={this.Info.CDimension.height} width={this.Info.CDimension.height}/>;
     }
 }
 
-const ball = {
-    x : 0,
-    y : 0,
-    radius : 10,
-    velocityX : -3,
-    velocityY : 0,
-    speed : 3,
-    color : "#477cae"
-}
-
-const u1 = {
-    x : 0,
-    y : 0,
-    width : 50,
-    height : 250,
-    speed : 20,
-    max : 0,
-    min : 0,
-    score : 0,
-    color : "#da0101"
-}
-
-const u2 = {
-    x : 0,
-    y : 0,
-    width : 50,
-    height : 250,
-    speed : 20,
-    max: 0,
-    min: 0,
-    score : 0,
-    color : "#39c524"
-}
-
 type CanvasProps = {
-    width: number;
-    height: number;
-}
-
-function ReplaceBall(i:number)
-{
-    ball.x = canvas.width / 2;
-    ball.y = canvas.height / 2;
-
-    ball.speed = 3;
-    ball.velocityY = -ball.velocityY;
-    ball.velocityX = -ball.speed;
-    if (i === 0)
-        ball.velocityX = ball.speed;
+    Player1:Player;
+    Ball:Ball;
+    Dimension:any;
 }
 
 function DrawScore(x:number, y:number, color:string, text:string)
@@ -120,24 +158,6 @@ function DrawRec(x: number, y: number, w: number, h: number, color:string)
     context.fillRect(x, y, w , h);
 }
 
-function PaddleUp()
-{
-    context.fillStyle = '#000000';
-    context.fillRect(u1.x, u1.y, u1.width, u1.height);
-    if (u1.y - u1.speed >= -10)
-        u1.y -= u1.speed;
-}
-
-function PaddleDown()
-{
-    context.fillStyle = '#000000';
-    context.fillRect(u1.x, u1.y, u1.width, u1.height)
-    if (u1.y + u1.speed + u1.height <= u1.max + 10)
-        u1.y += u1.speed;
-    //console.log(u1.y);
-    //console.log(u1.max);
-}
-
 function DrawBall(x: number, y: number, r: number, color:string)
 {
     context.fillStyle = color;
@@ -151,73 +171,4 @@ function ResetBall()
 {
     context.fillStyle = '#000000';
     context.fillRect(0, 0, context.canvas.width, context.canvas.height);
-}
-
-function UpdateBall()
-{
-    if (ball.x - ball.radius < 0)
-    {
-        u2.score++;
-        ReplaceBall(1);
-    }
-    if (ball.x + ball.radius > canvas.width)
-    {
-        u1.score++;
-        ReplaceBall(0);
-    }
-    ball.x += ball.velocityX;
-    ball.y += ball.velocityY;
-    //console.log(ball);
-    if (ball.y + ball.radius > canvas.height || ball.y - ball.radius < 0)
-        ball.velocityY = -ball.velocityY;
-    let player:string = (ball.x < (canvas.width / 2)) ? 'u1' : 'u2';
-    if (player === 'u1' && collision(ball, u1))
-    {
-        //console.log("collision !");
-        let colPoint:number = ball.y - (u1.y + (u1.height / 2));
-        colPoint = colPoint / (u1.height / 2);
-        let angleRad:number = colPoint * Math.PI / 4;
-        let direction:number = (ball.x < (canvas.width / 2)) ? 1 : -1;
-
-        ball.velocityX = direction * ball.speed * Math.cos(angleRad);
-        ball.velocityY = ball.speed * Math.sin(angleRad);
-        if (ball.speed < 40)
-            ball.speed += 0.1;
-    }
-    if (player === 'u2' && collision(ball, u2))
-    {
-        let colPoint:number = ball.y - (u2.y + (u2.height / 2));
-        colPoint = colPoint / (u2.height / 2);
-        let angleRad:number = colPoint * Math.PI / 4;
-        let direction:number = (ball.x < (canvas.width / 2)) ? 1 : -1;
-        if (ball.speed < 40)
-            ball.speed += 0.1;
-
-        ball.velocityX = direction * ball.speed * Math.cos(angleRad);
-        ball.velocityY = ball.speed * Math.sin(angleRad);
-    }
-}
-
-function collision(b:any, p:any)
-{
-    b.top = ball.y - ball.radius;
-    b.bottom = ball.y + ball.radius;
-    b.left = ball.x - b.radius;
-    b.right = ball.x + b.radius
-
-    p.top = p.y;
-    p.bottom = p.y + p.height;
-    p.left = p.x;
-    p.right = p.x + p.width;
-    return b.right > p.left && b.bottom > p.top && b.left < p.right && b.top < p.bottom;
-}
-
-const render = () => {
-    ResetBall();
-    DrawScore(canvas.width / 4, canvas.height / 4, '#FFFFFF', u1.score.toString());
-    DrawScore(3 * canvas.width / 4, canvas.height / 4, '#FFFFFF', u2.score.toString());
-    DrawRec(u1.x, u1.y, u1.width, u1.height, u1.color);
-    DrawRec(u2.x, u2.y, u2.width, u2.height, u2.color);
-    DrawBall(ball.x, ball.y, ball.radius, ball.color);
-    UpdateBall();
 }
