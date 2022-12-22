@@ -1,8 +1,13 @@
 /* eslint-disable prettier/prettier */
+import io from 'socket.io-client';
+import { Socket } from 'socket.io';
+
+
 let canvas: any;
 let context: any;
 
-class Player {
+class Player
+{
   x: number;
   y: number;
   width: number;
@@ -12,17 +17,8 @@ class Player {
   min: number;
   max: number;
   speed: number;
-  constructor(
-    x: number,
-    y: number,
-    width: number,
-    height: number,
-    color: string,
-    score: number,
-    min: number,
-    max: number,
-    speed: number,
-  ) {
+  constructor(x: number, y: number, width: number, height: number, color: string, score: number, min: number, max: number, speed: number)
+  {
     this.x = x;
     this.y = y - height / 2;
     this.width = 10;
@@ -33,20 +29,25 @@ class Player {
     this.max = max;
     this.speed = speed;
   }
-  PaddleUp() {
-    context.fillStyle = '#ffffff';
-    context.fillRect(this.x, this.y, this.width, this.height);
-    if (this.y - this.speed >= -10) this.y -= this.speed;
+  PaddleUp()
+  {
+    // context.fillStyle = '#ffffff';
+    // context.fillRect(this.x, this.y, this.width, this.height);
+    if (this.y - this.speed >= -10)
+      this.y -= this.speed;
   }
-  PaddleDown() {
-    context.fillStyle = '#ffffff';
-    context.fillRect(this.x, this.y, this.width, this.height);
+  PaddleDown()
+  {
+    console.log('downing');
+    // context.fillStyle = '#ffffff';
+    // context.fillRect(this.x, this.y, this.width, this.height);
     if (this.y + this.speed + this.height <= this.max + 10)
       this.y += this.speed;
   }
 }
 
-class Ball {
+class Ball
+{
   x: number;
   y: number;
   radius: number;
@@ -54,17 +55,10 @@ class Ball {
   velocityX: number;
   velocityY: number;
   color: string;
-  constructor(
-    x: number,
-    y: number,
-    radius: number,
-    speed: number,
-    velocityX: number,
-    velocityY: number,
-    color: string,
-  ) {
-    this.x = x;
-    this.y = y;
+  constructor(x: number, y: number, radius: number, speed: number, velocityX: number, velocityY: number, color: string)
+  {
+    this.x = x / 2;
+    this.y = y / 2;
     this.radius = radius;
     this.speed = speed;
     this.velocityX = velocityX;
@@ -80,15 +74,15 @@ export class gameInfo {
   CDimension: { width: number; height: number };
   constructor(widths: number, heights: number) {
     this.CDimension = { width: widths, height: heights };
-    this.Balling = new Ball(widths, heights, 10, 0.001, 0.001, 0.001, 'red');
-    this.Player1 = new Player(0, 500, 10, 100, 'white', 0, 0, 0, 3);
-    this.Player2 = new Player(0, 0, 10, 100, 'white', 0, 0, 0, 3);
+    this.Balling = new Ball(widths, heights, 10, 1, 1, 1, 'red');
+    this.Player1 = new Player(0, 500, 10, 100, 'white', 0, 0, 0, 0.1);
+    this.Player2 = new Player(widths - 10, (heights / 2), 10, 100, 'white', 0, 0, 0, 1);
   }
 }
 
 export class Gaming {
-  Info: gameInfo;
   i = 0;
+  Info: gameInfo;
 
   constructor(width: number, height: number) {
     this.Info = new gameInfo(width, height);
@@ -98,18 +92,22 @@ export class Gaming {
     return this.Info;
   }
 
-  rendering() {
-    setInterval(this.render, 1000 / 60);
+  rendering(Client:Socket) {
+    const socket = Client;
+    this.render(socket);
   }
 
-  render = () => {
+  public async render(socket: Socket) : Promise<void> {
+    socket.on('Pdown', (arg) => {
+        this.Info.Player1.PaddleDown();
+    });
+    socket.on('Pup', (arg) => {
+        this.Info.Player1.PaddleUp();
+    });
     this.UpdateBall();
-  };
+  }
 
-  collision(
-      b: any,
-      p: any, //Back
-  ) {
+  collision(b: any, p: any) {
     b.top = this.Info.Balling.y - this.Info.Balling.radius;
     b.bottom = this.Info.Balling.y + this.Info.Balling.radius;
     b.left = this.Info.Balling.x - b.radius;
@@ -119,15 +117,10 @@ export class Gaming {
     p.bottom = p.y + p.height;
     p.left = p.x;
     p.right = p.x + p.width;
-    return (
-        b.right > p.left &&
-        b.bottom > p.top &&
-        b.left < p.right &&
-        b.top < p.bottom
-    );
+    return (b.right > p.left && b.bottom > p.top && b.left < p.right && b.top < p.bottom);
   }
 
-  UpdateBall() {
+  public UpdateBall() {
     this.Info.Balling.x += this.Info.Balling.velocityX;
     this.Info.Balling.y += this.Info.Balling.velocityY;
     if (this.Info.Balling.x - this.Info.Balling.radius < 0) {
@@ -165,25 +158,20 @@ export class Gaming {
       this.Info.Balling.velocityX = direction * this.Info.Balling.speed * Math.cos(angleRad);
       this.Info.Balling.velocityY = this.Info.Balling.speed * Math.sin(angleRad);
     }
+
   }
 
   ReplaceBall(i: number) {
-    console.log(this.Info.Balling);
+    //console.log('fdp');
     this.Info.Balling.x = this.Info.CDimension.width / 2;
     this.Info.Balling.y = this.Info.CDimension.height / 2;
 
-    this.Info.Balling.speed = 0.001;
-    this.Info.Balling.velocityY = this.Info.Balling.speed;
-    this.Info.Balling.velocityX = -this.Info.Balling.speed;
+    this.Info.Balling.speed = 1;
+    this.Info.Balling.velocityY = 1;
+    this.Info.Balling.velocityX = -1;
     if (i === 0) {
-      this.Info.Balling.velocityX = this.Info.Balling.speed;
+      this.Info.Balling.velocityX = 1;
       this.Info.Balling.velocityY = 0;
     }
   }
 }
-
-
-// type CanvasProps = {
-//   width: number;
-//   height: number;
-// }

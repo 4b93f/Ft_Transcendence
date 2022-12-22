@@ -15,7 +15,7 @@ export class GameGateway {
     @MessageBody() data: string,
     @ConnectedSocket() client: Socket,
   ): any {
-    this.gameInstance.rendering();
+    this.gameInstance.rendering(client);
     return this.gameInstance.Info;
   }
 }

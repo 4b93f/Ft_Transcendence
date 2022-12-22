@@ -95,7 +95,9 @@ export class Gaming{
         this.socket.emit('events', {name: 'TEST'}, (data:gameInfo) => {
             this.Info.copy(data);
         });
-        console.log('FACK');
+        //this.socket.emit('Pdown', this.Info.Player1);
+
+        //console.log(this.Info.Balling);
         ResetBall();
         DrawScore(canvas.width / 4, canvas.height / 4, '#FFFFFF', this.Info.Player1.score.toString());
         DrawScore(3 * canvas.width / 4, canvas.height / 4, '#FFFFFF',this.Info.Player1.score.toString());
@@ -104,18 +106,17 @@ export class Gaming{
         DrawBall(this.Info.Balling.x, this.Info.Balling.y, this.Info.Balling.radius, this.Info.Balling.color);
     }
     Canvas = () => {
+
         this.socket.emit('events', (data:gameInfo) => {
             //console.log('test');
             this.Info.copy(data);
         });
         const canvasRef = useRef<HTMLCanvasElement>(null);
         useEffect(() => {
-            if (canvasRef.current)
-            {
+            if (canvasRef.current) {
                 canvas = canvasRef.current;
                 context = canvas.getContext('2d');
-                if (context)
-                {
+                if (context) {
                     context.beginPath();
                     context.fillStyle = '#163eab';
                     context.fillRect(0, 0, context.canvas.width, context.canvas.height);
@@ -125,12 +126,13 @@ export class Gaming{
                 }
                 setInterval(this.Draw, 1);
                 canvas.tabIndex = 1;
-                canvas.addEventListener('keypress', function(e:any) {
-                    if (e.keyCode === 38){
-                        console.log("UP");
+                window.addEventListener('keydown', (e) => {
+                    if ('ArrowUp' === e.key) {
+                        this.socket.emit('Pup', this.Info.Player1);
                     }
-                    if (e.keyCode === 40){
-                        console.log("DOWN");
+                    if ('ArrowDown' === e.key) {
+                        console.log(e.key);
+                        this.socket.emit('Pdown', this.Info.Player1)
                     }
                 });
             }

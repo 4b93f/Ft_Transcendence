@@ -1,7 +1,5 @@
 import React, {useState, useEffect, useCallback} from "react";
 import {gameInfo, Gaming} from "./components/Canvas";
-import io from "socket.io-client";
-import {wait} from "@testing-library/user-event/dist/utils";
 
 
 function App() {
