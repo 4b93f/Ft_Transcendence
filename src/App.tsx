@@ -3,7 +3,6 @@ import {gameInfo, Gaming} from "./components/Canvas";
 
 
 function App() {
-    let done;
     let test:gameInfo;
     let game = new Gaming(1000,1000);
     return game.Canvas();

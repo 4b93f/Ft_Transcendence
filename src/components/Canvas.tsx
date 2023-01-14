@@ -95,9 +95,6 @@ export class Gaming{
         this.socket.emit('events', {name: 'TEST'}, (data:gameInfo) => {
             this.Info.copy(data);
         });
-        //this.socket.emit('Pdown', this.Info.Player1);
-
-        //console.log(this.Info.Balling);
         ResetBall();
         DrawScore(canvas.width / 4, canvas.height / 4, '#FFFFFF', this.Info.Player1.score.toString());
         DrawScore(3 * canvas.width / 4, canvas.height / 4, '#FFFFFF',this.Info.Player1.score.toString());
@@ -128,11 +125,12 @@ export class Gaming{
                 canvas.tabIndex = 1;
                 window.addEventListener('keydown', (e) => {
                     if ('ArrowUp' === e.key) {
-                        this.socket.emit('Pup', this.Info.Player1);
+                        console.log(this.socket.id);
+                        this.socket.emit('PaddleUp', this.Info);
                     }
                     if ('ArrowDown' === e.key) {
-                        console.log(e.key);
-                        this.socket.emit('Pdown', this.Info.Player1)
+                        console.log(this.socket.id);
+                        this.socket.emit('PaddleDown', this.Info)
                     }
                 });
             }

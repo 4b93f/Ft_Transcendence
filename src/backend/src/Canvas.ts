@@ -1,6 +1,7 @@
 /* eslint-disable prettier/prettier */
 import io from 'socket.io-client';
 import { Socket } from 'socket.io';
+import {timeout} from "rxjs";
 
 
 let canvas: any;
@@ -31,18 +32,13 @@ class Player
   }
   PaddleUp()
   {
-    // context.fillStyle = '#ffffff';
-    // context.fillRect(this.x, this.y, this.width, this.height);
     if (this.y - this.speed >= -10)
-      this.y -= this.speed;
+        this.y -= this.speed;
   }
   PaddleDown()
   {
-    console.log('downing');
-    // context.fillStyle = '#ffffff';
-    // context.fillRect(this.x, this.y, this.width, this.height);
     if (this.y + this.speed + this.height <= this.max + 10)
-      this.y += this.speed;
+        this.y += this.speed;
   }
 }
 
@@ -71,12 +67,29 @@ export class gameInfo {
   Balling: Ball;
   Player1: Player;
   Player2: Player;
+  Connected : [string, string];
   CDimension: { width: number; height: number };
   constructor(widths: number, heights: number) {
+    this.Connected = ["", ""];
     this.CDimension = { width: widths, height: heights };
     this.Balling = new Ball(widths, heights, 10, 1, 1, 1, 'red');
-    this.Player1 = new Player(0, 500, 10, 100, 'white', 0, 0, 0, 0.1);
-    this.Player2 = new Player(widths - 10, (heights / 2), 10, 100, 'white', 0, 0, 0, 1);
+    this.Player1 = new Player(0, 500, 10, 100, 'white', 0, 0, heights, 10);
+    this.Player2 = new Player(widths - 10, (heights / 2), 10, 100, 'white', 0, 0, heights, 10);
+  }
+  CheckMove(id: string){
+    console.log(this.Connected);
+    if (this.Connected[0] === "")
+      this.Connected[0] = id;
+    if (this.Connected[0] === id)
+      return this.Player1;
+    if (this.Connected[1] === "")
+      this.Connected[1] = id;
+    if (this.Connected[1] === id)
+      return this.Player2;
+    if (this.Connected[0] !== id && this.Connected[1] !== id)
+      throw new Error("Too many players");
+    else
+      return this.Player1;
   }
 }
 
@@ -98,12 +111,7 @@ export class Gaming {
   }
 
   public async render(socket: Socket) : Promise<void> {
-    socket.on('Pdown', (arg) => {
-        this.Info.Player1.PaddleDown();
-    });
-    socket.on('Pup', (arg) => {
-        this.Info.Player1.PaddleUp();
-    });
+    timeout(1000);
     this.UpdateBall();
   }
 
