@@ -69,8 +69,8 @@ export class gameInfo{
     CDimension:any = {width: 0, height: 0};
     constructor(widths:number, heights:number){
         this.Balling = new Ball(widths, heights, 10, 10, 10, 10, 'red');
-        this.Player1 = new Player(0, 0, 10, 10, 'white', 0, 0, 0, 3);
-        this.Player2 = new Player(widths, heights, 10, 10, 'white', 0, 0, 0, 3);
+        this.Player1 = new Player(0, 0, 10, 10, '#0d35ca', 0, 0, 0, 3);
+        this.Player2 = new Player(widths, heights, 10, 10, '#ffffff', 0, 0, 0, 3);
         this.CDimension = {width: widths, height: heights};
     }
     copy(other:gameInfo)
@@ -96,14 +96,14 @@ export class Gaming{
             this.Info.copy(data);
         });
         ResetBall();
-        DrawScore(canvas.width / 4, canvas.height / 4, '#FFFFFF', this.Info.Player1.score.toString());
-        DrawScore(3 * canvas.width / 4, canvas.height / 4, '#FFFFFF',this.Info.Player1.score.toString());
+        DrawScore(canvas.width / 4, canvas.height / 4, '#ffffff', this.Info.Player1.score.toString());
+        DrawScore(3 * canvas.width / 4, canvas.height / 4, '#ffffff',this.Info.Player2.score.toString());
         DrawRec(this.Info.Player1.x, this.Info.Player1.y, this.Info.Player1.width, this.Info.Player1.height, this.Info.Player1.color);
         DrawRec(this.Info.Player2.x, this.Info.Player2.y, this.Info.Player2.width, this.Info.Player2.height, this.Info.Player2.color);
         DrawBall(this.Info.Balling.x, this.Info.Balling.y, this.Info.Balling.radius, this.Info.Balling.color);
     }
     Canvas = () => {
-
+        console.log('SHEESH')
         this.socket.emit('events', (data:gameInfo) => {
             //console.log('test');
             this.Info.copy(data);
@@ -139,15 +139,15 @@ export class Gaming{
     }
 }
 
-type CanvasProps = {
-    Player1:Player;
-    Ball:Ball;
-    Dimension:any;
-}
+// type CanvasProps = {
+//     Player1:Player;
+//     Ball:Ball;
+//     Dimension:any;
+// }
 
 function DrawScore(x:number, y:number, color:string, text:string)
 {
-    context.fillStyle = '#ffffff';
+    context.fillStyle = color;
     context.font = '45px Arial';
     context.fillText(text, x, y)
 }
