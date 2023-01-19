@@ -12,7 +12,17 @@ import { LobbyManager } from '../lobby/lobby';
 export class GameGateway {
   //gameInstance = new Gaming(1000, 1000);
   maxlobby = 0;
+  jwt = require('jwt-simple');
+  name = ['charli', 'florian', 'julien', 'lucas', 'maxime', 'mickael', 'nicolas', 'pierre', 'quentin', 'thomas'];
+  payload = {
+    sub: '1234567890',
+    name: '',
+    log: new Date().getTime(),
+    };
+  secret = "xxx";
+  token:any;
   LobbyManager = new LobbyManager();
+  PlayerConnected = [];
   @SubscribeMessage('events')
   handleEvent(
       @MessageBody() data: string,
@@ -29,11 +39,16 @@ export class GameGateway {
         @ConnectedSocket() client: Socket,
     ): any {
         console.log('Player connected');
-
-        // if (++this.maxlobby === 1)
-        //   this.LobbyManager.createLobby();
-        // this.LobbyManager.JoinLobby('0');
-        // this.LobbyManager.printLobby();
+        this.payload.log = new Date().getTime();
+        this.payload.name = this.name[Math.floor(Math.random() * this.name.length)];
+        console.log('Player connected');
+        console.log('TEST');
+        this.token = this.jwt.encode(this.payload, this.secret);
+        this.PlayerConnected.push(this.jwt.decode(this.token, this.secret));
+        console.log(this.token);
+        console.log(this.jwt.decode(this.token, this.secret));
+        console.log('Connected : ' + this.PlayerConnected.length);
+        console.log(this.PlayerConnected);
   }
 
   @SubscribeMessage('CreateLobby')

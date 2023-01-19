@@ -1,4 +1,5 @@
 import {Gaming} from "./components/Canvas";
+import React from "react";
 
 function App() {
     console.log('test');

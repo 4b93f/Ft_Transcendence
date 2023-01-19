@@ -41,8 +41,6 @@ export class LobbyManager {
       tLobby.Players.pop();
       return tLobby;
     }
-    else
-        throw new Error('Lobby not found');
   }
   printLobby() {
     console.log(this.LobbyList);
@@ -52,6 +50,7 @@ export class LobbyManager {
     if (tLobby)
         return tLobby.Instance;
     else
-        throw new Error('Lobby/Instance not found');
+        //throw new Error('Lobby/Instance not found');
+        console.log('Lobby/Instance not found');
   }
 }
